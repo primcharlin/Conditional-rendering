@@ -83,6 +83,12 @@ export default function App() {
         }));
     };
 
+    const clearFilters = () => {
+        setFilterCriteria({
+            author: "",
+        });
+    };
+
     // Get unique authors from user-added books
     const uniqueAuthors = [
         ...new Set(

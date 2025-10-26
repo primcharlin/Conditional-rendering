@@ -83,6 +83,12 @@ export default function App() {
         }));
     };
 
+    const clearFilters = () => {
+        setFilterCriteria({
+            author: "",
+        });
+    };
+
     // Get unique authors from user-added books
     const uniqueAuthors = [
         ...new Set(
@@ -115,6 +121,7 @@ export default function App() {
                         <BookFilter
                             filterCriteria={filterCriteria}
                             onFilterChange={handleFilterChange}
+                            onClearFilters={clearFilters}
                             authors={uniqueAuthors}
                         />
                         <BtnPlus onClick={handleAddBook} />

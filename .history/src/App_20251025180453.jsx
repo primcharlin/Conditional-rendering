@@ -10,7 +10,8 @@ export default function App() {
     const [books, setBooks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [filterCriteria, setFilterCriteria] = useState({
-        author: "",
+        publisher: "",
+        language: "",
     });
 
     useEffect(() => {
@@ -83,24 +84,20 @@ export default function App() {
         }));
     };
 
-    // Get unique authors from user-added books
-    const uniqueAuthors = [
-        ...new Set(
-            books
-                .filter((book) => book.isUserAdded)
-                .map((book) => book.author)
-                .filter((author) => author && author.trim() !== "")
-        ),
-    ].sort();
+    const clearFilters = () => {
+        setFilterCriteria({
+            publisher: "",
+            language: "",
+        });
+    };
 
-    // Filter books based on criteria - only show user-added books
+    // Filter books based on criteria
     const filteredBooks = books.filter((book) => {
-        // Only show user-added books (hide existing/default books)
-        if (!book.isUserAdded) return false;
-
-        const matchesAuthor =
-            !filterCriteria.author || book.author === filterCriteria.author;
-        return matchesAuthor;
+        const matchesPublisher = !filterCriteria.publisher || 
+            book.publisher.toLowerCase().includes(filterCriteria.publisher.toLowerCase());
+        const matchesLanguage = !filterCriteria.language || 
+            book.language.toLowerCase().includes(filterCriteria.language.toLowerCase());
+        return matchesPublisher && matchesLanguage;
     });
 
     return (
@@ -112,11 +109,6 @@ export default function App() {
             <div className='content'>
                 <div className='main-layout'>
                     <div className='btn-plus-container'>
-                        <BookFilter
-                            filterCriteria={filterCriteria}
-                            onFilterChange={handleFilterChange}
-                            authors={uniqueAuthors}
-                        />
                         <BtnPlus onClick={handleAddBook} />
                         <div className='action-buttons'>
                             <button
@@ -134,18 +126,20 @@ export default function App() {
                         </div>
                     </div>
                     <div className='books-grid'>
-                        {filteredBooks.map((b) => (
-                            <Book
-                                key={b.isbn13}
-                                image={b.image}
-                                title={b.title}
-                                authors={b.author}
-                                url={b.url}
-                                price={b.price}
-                                isSelected={b.selected}
-                                onSelect={() => handleBookSelect(b.isbn13)}
-                            />
-                        ))}
+                        {books
+                            .filter((book) => book.isUserAdded)
+                            .map((b) => (
+                                <Book
+                                    key={b.isbn13}
+                                    image={b.image}
+                                    title={b.title}
+                                    authors={b.author}
+                                    url={b.url}
+                                    price={b.price}
+                                    isSelected={b.selected}
+                                    onSelect={() => handleBookSelect(b.isbn13)}
+                                />
+                            ))}
                     </div>
                 </div>
             </div>

@@ -83,6 +83,7 @@ export default function App() {
         }));
     };
 
+
     // Get unique authors from user-added books
     const uniqueAuthors = [
         ...new Set(

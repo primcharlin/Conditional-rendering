@@ -83,23 +83,28 @@ export default function App() {
         }));
     };
 
+    const clearFilters = () => {
+        setFilterCriteria({
+            author: "",
+        });
+    };
+
     // Get unique authors from user-added books
-    const uniqueAuthors = [
-        ...new Set(
-            books
-                .filter((book) => book.isUserAdded)
-                .map((book) => book.author)
-                .filter((author) => author && author.trim() !== "")
-        ),
-    ].sort();
+    const uniqueAuthors = [...new Set(
+        books
+            .filter(book => book.isUserAdded)
+            .map(book => book.author)
+            .filter(author => author && author.trim() !== '')
+    )].sort();
 
     // Filter books based on criteria - only show user-added books
     const filteredBooks = books.filter((book) => {
         // Only show user-added books (hide existing/default books)
         if (!book.isUserAdded) return false;
-
+        
         const matchesAuthor =
-            !filterCriteria.author || book.author === filterCriteria.author;
+            !filterCriteria.author ||
+            book.author === filterCriteria.author;
         return matchesAuthor;
     });
 
@@ -115,6 +120,7 @@ export default function App() {
                         <BookFilter
                             filterCriteria={filterCriteria}
                             onFilterChange={handleFilterChange}
+                            onClearFilters={clearFilters}
                             authors={uniqueAuthors}
                         />
                         <BtnPlus onClick={handleAddBook} />

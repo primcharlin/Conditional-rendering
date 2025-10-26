@@ -10,7 +10,8 @@ export default function App() {
     const [books, setBooks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [filterCriteria, setFilterCriteria] = useState({
-        author: "",
+        publisher: "",
+        language: "",
     });
 
     useEffect(() => {
@@ -75,34 +76,6 @@ export default function App() {
         setBooks((prev) => [...prev, newBook]);
     };
 
-    const handleFilterChange = (e) => {
-        const { name, value } = e.target;
-        setFilterCriteria((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    // Get unique authors from user-added books
-    const uniqueAuthors = [
-        ...new Set(
-            books
-                .filter((book) => book.isUserAdded)
-                .map((book) => book.author)
-                .filter((author) => author && author.trim() !== "")
-        ),
-    ].sort();
-
-    // Filter books based on criteria - only show user-added books
-    const filteredBooks = books.filter((book) => {
-        // Only show user-added books (hide existing/default books)
-        if (!book.isUserAdded) return false;
-
-        const matchesAuthor =
-            !filterCriteria.author || book.author === filterCriteria.author;
-        return matchesAuthor;
-    });
-
     return (
         <div className='app'>
             <header className='app-header'>
@@ -112,11 +85,6 @@ export default function App() {
             <div className='content'>
                 <div className='main-layout'>
                     <div className='btn-plus-container'>
-                        <BookFilter
-                            filterCriteria={filterCriteria}
-                            onFilterChange={handleFilterChange}
-                            authors={uniqueAuthors}
-                        />
                         <BtnPlus onClick={handleAddBook} />
                         <div className='action-buttons'>
                             <button
@@ -134,18 +102,20 @@ export default function App() {
                         </div>
                     </div>
                     <div className='books-grid'>
-                        {filteredBooks.map((b) => (
-                            <Book
-                                key={b.isbn13}
-                                image={b.image}
-                                title={b.title}
-                                authors={b.author}
-                                url={b.url}
-                                price={b.price}
-                                isSelected={b.selected}
-                                onSelect={() => handleBookSelect(b.isbn13)}
-                            />
-                        ))}
+                        {books
+                            .filter((book) => book.isUserAdded)
+                            .map((b) => (
+                                <Book
+                                    key={b.isbn13}
+                                    image={b.image}
+                                    title={b.title}
+                                    authors={b.author}
+                                    url={b.url}
+                                    price={b.price}
+                                    isSelected={b.selected}
+                                    onSelect={() => handleBookSelect(b.isbn13)}
+                                />
+                            ))}
                     </div>
                 </div>
             </div>

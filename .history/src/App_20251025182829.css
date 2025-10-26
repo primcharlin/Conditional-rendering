@@ -545,8 +545,7 @@ h1 {
 .filter-row {
     display: flex;
     gap: 1rem;
-    align-items: center;
-    justify-content: center;
+    align-items: end;
     flex-wrap: wrap;
 }
 
