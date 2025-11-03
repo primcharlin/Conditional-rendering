@@ -31,13 +31,7 @@ export default function LoanManagement({
     return (
         <div className='loan-management'>
             <div className='loan-header'>
-                <h2>Manage Loans</h2>
-                <button
-                    className='btn-update btn-quit btn-quit-small'
-                    onClick={onQuit}
-                    title='Quit to catalog'>
-                    Quit
-                </button>
+                <h2>Loan Management</h2>
             </div>
             {allBorrowed ? (
                 <div className='info-message'>
@@ -100,7 +94,7 @@ export default function LoanManagement({
             )}
 
             <div className='loaned-books'>
-                <h3>Currently on loan</h3>
+                <h3>Loaned Books</h3>
                 {loans.length === 0 ? (
                     <div className='info-message'>No books on loan.</div>
                 ) : (
@@ -112,32 +106,15 @@ export default function LoanManagement({
                                 <li
                                     key={`${loan.isbn13}-${loan.borrower}`}
                                     className='loan-item'>
-                                    <div className='loan-card'>
-                                        <div className='loan-row'>
-                                            <span className='loan-label'>
-                                                Borrower:
-                                            </span>
-                                            <span className='loan-value'>
-                                                {loan.borrower}
-                                            </span>
-                                        </div>
-                                        <div className='loan-row'>
-                                            <span className='loan-label'>
-                                                Book:
-                                            </span>
-                                            <span className='loan-value'>
-                                                {book?.title || loan.isbn13}
-                                            </span>
-                                        </div>
-                                        <div className='loan-row'>
-                                            <span className='loan-label'>
-                                                Due date:
-                                            </span>
-                                            <span className='loan-value'>
-                                                {due.toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <span className='loan-title'>
+                                        {book?.title || loan.isbn13}
+                                    </span>
+                                    <span className='loan-borrower'>
+                                        Borrower: {loan.borrower}
+                                    </span>
+                                    <span className='loan-due'>
+                                        Due: {due.toLocaleDateString()}
+                                    </span>
                                 </li>
                             );
                         })}

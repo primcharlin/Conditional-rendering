@@ -31,7 +31,7 @@ export default function LoanManagement({
     return (
         <div className='loan-management'>
             <div className='loan-header'>
-                <h2>Manage Loans</h2>
+                <h2>Loan Management</h2>
                 <button
                     className='btn-update btn-quit btn-quit-small'
                     onClick={onQuit}

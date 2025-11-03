@@ -133,43 +133,54 @@ export default function App() {
             <header className='app-header'>
                 <h1>Book Catalog</h1>
             </header>
-
+    
+            {view === "loans" && (
+                <div className='quit-bar'>
+                    <button
+                        className='btn-update btn-quit btn-quit-small'
+                        onClick={() => setView("catalog")}
+                        title='Quit to catalog'>
+                        Quit
+                    </button>
+                </div>
+            )}
+    
             <div className='content'>
-                <div className='main-layout'>
-                    {view === "catalog" && (
+                {view === "catalog" ? (
+                    <div className='main-layout'>
                         <div className='btn-plus-container'>
-                            <BookFilter
-                                filterCriteria={filterCriteria}
-                                onFilterChange={handleFilterChange}
-                                authors={uniqueAuthors}
-                            />
-                            <div className='action-buttons'>
-                                <button
-                                    className='btn-update'
-                                    onClick={() => setView("loans")}
-                                    title='Switch to loan management'>
-                                    Manage Loans
-                                </button>
-                            </div>
-                            <BtnPlus onClick={handleAddBook} />
-                            <div className='action-buttons'>
-                                <button
-                                    className='btn-update'
-                                    onClick={handleUpdateSelected}
-                                    title='Edit selected book'>
-                                    Edit
-                                </button>
-                                <button
-                                    className='btn-delete'
-                                    onClick={handleDeleteSelected}
-                                    title='Delete selected book'>
-                                    Delete
-                                </button>
-                            </div>
+                            <>
+                                <BookFilter
+                                    filterCriteria={filterCriteria}
+                                    onFilterChange={handleFilterChange}
+                                    authors={uniqueAuthors}
+                                />
+                                <div className='action-buttons'>
+                                    <button
+                                        className='btn-update'
+                                        onClick={() => setView("loans")}
+                                        title='Switch to loan management'>
+                                        Manage Loans
+                                    </button>
+                                </div>
+                                <BtnPlus onClick={handleAddBook} />
+                                <div className='action-buttons'>
+                                    <button
+                                        className='btn-update'
+                                        onClick={handleUpdateSelected}
+                                        title='Edit selected book'>
+                                        Edit
+                                    </button>
+                                    <button
+                                        className='btn-delete'
+                                        onClick={handleDeleteSelected}
+                                        title='Delete selected book'>
+                                        Delete
+                                    </button>
+                                </div>
+                            </>
                         </div>
-                    )}
-
-                    {view === "catalog" ? (
+    
                         <div className='books-grid'>
                             {filteredBooks.map((b) => (
                                 <Book
@@ -185,24 +196,24 @@ export default function App() {
                                 />
                             ))}
                         </div>
-                    ) : (
-                        <div className='loan-pane'>
-                            <LoanManagement
-                                books={books}
-                                availableBooks={availableBooksForLoan}
-                                loans={loans}
-                                onCreateLoan={handleCreateLoan}
-                                onQuit={() => setView("catalog")}
-                            />
-                        </div>
-                    )}
-                </div>
+                    </div>
+                ) : (
+                    <div className='loan-page'>
+                        <LoanManagement
+                            books={books}
+                            availableBooks={availableBooksForLoan}
+                            loans={loans}
+                            onCreateLoan={handleCreateLoan}
+                            onQuit={() => setView("catalog")}
+                        />
+                    </div>
+                )}
             </div>
-
+    
             <footer className='footer'>
                 <p>Primcharlin Kiattipoompun Set G</p>
             </footer>
-
+    
             <AddBookModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
@@ -210,4 +221,3 @@ export default function App() {
             />
         </div>
     );
-}

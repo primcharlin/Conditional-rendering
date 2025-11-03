@@ -187,6 +187,14 @@ export default function App() {
                         </div>
                     ) : (
                         <div className='loan-pane'>
+                            <div className='quit-bar'>
+                                <button
+                                    className='btn-update btn-quit btn-quit-small'
+                                    onClick={() => setView("catalog")}
+                                    title='Quit to catalog'>
+                                    Quit
+                                </button>
+                            </div>
                             <LoanManagement
                                 books={books}
                                 availableBooks={availableBooksForLoan}

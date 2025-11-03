@@ -136,38 +136,41 @@ export default function App() {
 
             <div className='content'>
                 <div className='main-layout'>
-                    {view === "catalog" && (
-                        <div className='btn-plus-container'>
-                            <BookFilter
-                                filterCriteria={filterCriteria}
-                                onFilterChange={handleFilterChange}
-                                authors={uniqueAuthors}
-                            />
-                            <div className='action-buttons'>
-                                <button
-                                    className='btn-update'
-                                    onClick={() => setView("loans")}
-                                    title='Switch to loan management'>
-                                    Manage Loans
-                                </button>
-                            </div>
-                            <BtnPlus onClick={handleAddBook} />
-                            <div className='action-buttons'>
-                                <button
-                                    className='btn-update'
-                                    onClick={handleUpdateSelected}
-                                    title='Edit selected book'>
-                                    Edit
-                                </button>
-                                <button
-                                    className='btn-delete'
-                                    onClick={handleDeleteSelected}
-                                    title='Delete selected book'>
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                    <div className='btn-plus-container'>
+                        {view === "catalog" && (
+                            <>
+                                <BookFilter
+                                    filterCriteria={filterCriteria}
+                                    onFilterChange={handleFilterChange}
+                                    authors={uniqueAuthors}
+                                />
+                                <div className='action-buttons'>
+                                    <button
+                                        className='btn-update'
+                                        onClick={() => setView("loans")}
+                                        title='Switch to loan management'>
+                                        Manage Loans
+                                    </button>
+                                </div>
+                                <BtnPlus onClick={handleAddBook} />
+                                <div className='action-buttons'>
+                                    <button
+                                        className='btn-update'
+                                        onClick={handleUpdateSelected}
+                                        title='Edit selected book'>
+                                        Edit
+                                    </button>
+                                    <button
+                                        className='btn-delete'
+                                        onClick={handleDeleteSelected}
+                                        title='Delete selected book'>
+                                        Delete
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                        {view === "loans" && null}
+                    </div>
 
                     {view === "catalog" ? (
                         <div className='books-grid'>
@@ -187,6 +190,14 @@ export default function App() {
                         </div>
                     ) : (
                         <div className='loan-pane'>
+                            <div className='quit-bar'>
+                                <button
+                                    className='btn-update btn-quit btn-quit-small'
+                                    onClick={() => setView("catalog")}
+                                    title='Quit to catalog'>
+                                    Quit
+                                </button>
+                            </div>
                             <LoanManagement
                                 books={books}
                                 availableBooks={availableBooksForLoan}

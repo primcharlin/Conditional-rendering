@@ -129,15 +129,27 @@ export default function App() {
     });
 
     return (
-        <div className='app'>
-            <header className='app-header'>
-                <h1>Book Catalog</h1>
-            </header>
+    <div className='app'>
+        <header className='app-header'>
+            <h1>Book Catalog</h1>
+        </header>
 
-            <div className='content'>
+        {view === "loans" && (
+            <div className='quit-bar'>
+                <button
+                    className='btn-update btn-quit btn-quit-small'
+                    onClick={() => setView("catalog")}
+                    title='Quit to catalog'>
+                    Quit
+                </button>
+            </div>
+        )}
+
+        <div className='content'>
+            {view === "catalog" ? (
                 <div className='main-layout'>
-                    {view === "catalog" && (
-                        <div className='btn-plus-container'>
+                    <div className='btn-plus-container'>
+                        <>
                             <BookFilter
                                 filterCriteria={filterCriteria}
                                 onFilterChange={handleFilterChange}
@@ -166,48 +178,46 @@ export default function App() {
                                     Delete
                                 </button>
                             </div>
-                        </div>
-                    )}
+                        </>
+                    </div>
 
-                    {view === "catalog" ? (
-                        <div className='books-grid'>
-                            {filteredBooks.map((b) => (
-                                <Book
-                                    key={b.isbn13}
-                                    image={b.image}
-                                    title={b.title}
-                                    authors={b.author}
-                                    url={b.url}
-                                    price={b.price}
-                                    isSelected={b.selected}
-                                    onSelect={() => handleBookSelect(b.isbn13)}
-                                    onLoan={onLoanByIsbn.get(b.isbn13)}
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className='loan-pane'>
-                            <LoanManagement
-                                books={books}
-                                availableBooks={availableBooksForLoan}
-                                loans={loans}
-                                onCreateLoan={handleCreateLoan}
-                                onQuit={() => setView("catalog")}
+                    <div className='books-grid'>
+                        {filteredBooks.map((b) => (
+                            <Book
+                                key={b.isbn13}
+                                image={b.image}
+                                title={b.title}
+                                authors={b.author}
+                                url={b.url}
+                                price={b.price}
+                                isSelected={b.selected}
+                                onSelect={() => handleBookSelect(b.isbn13)}
+                                onLoan={onLoanByIsbn.get(b.isbn13)}
                             />
-                        </div>
-                    )}
+                        ))}
+                    </div>
                 </div>
-            </div>
-
-            <footer className='footer'>
-                <p>Primcharlin Kiattipoompun Set G</p>
-            </footer>
-
-            <AddBookModal
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                onAddBook={handleAddNewBook}
-            />
+            ) : (
+                <div className='loan-page'>
+                    <LoanManagement
+                        books={books}
+                        availableBooks={availableBooksForLoan}
+                        loans={loans}
+                        onCreateLoan={handleCreateLoan}
+                        onQuit={() => setView("catalog")}
+                    />
+                </div>
+            )}
         </div>
-    );
-}
+
+        <footer className='footer'>
+            <p>Primcharlin Kiattipoompun Set G</p>
+        </footer>
+
+        <AddBookModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onAddBook={handleAddNewBook}
+        />
+    </div>
+);
