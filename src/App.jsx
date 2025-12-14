@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Book from "./Book";
 import BtnPlus from "./BtnPlus";
 import AddBookModal from "./AddBookModal";
+import EditBookModal from "./EditBookModal";
 import BookFilter from "./BookFilter";
 import "./App.css";
 import data from "./data.json";
@@ -10,13 +11,15 @@ import LoanManagement from "./LoanManagement";
 export default function App() {
     const [books, setBooks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingBook, setEditingBook] = useState(null);
     const [filterCriteria, setFilterCriteria] = useState({
         author: "",
     });
     const [view, setView] = useState("catalog"); // catalog | loans
     const [loans, setLoans] = useState([]); // { isbn13, borrower, weeks, dueDate }
 
-    useEffect(() => {
+    const loadDefaultBooks = useCallback(() => {
         // Transform data to include selected property and use title as author
         const transformedData = data.map((book) => ({
             ...book,
@@ -29,7 +32,51 @@ export default function App() {
             isUserAdded: false, // Mark as default books
         }));
         setBooks(transformedData);
+        // Save to localStorage
+        localStorage.setItem("books", JSON.stringify(transformedData));
     }, []);
+
+    // Load data from localStorage on mount
+    useEffect(() => {
+        // Load books from localStorage
+        const savedBooks = localStorage.getItem("books");
+        if (savedBooks) {
+            try {
+                const parsedBooks = JSON.parse(savedBooks);
+                setBooks(parsedBooks);
+            } catch (error) {
+                console.error("Error loading books from localStorage:", error);
+                // Fallback to default data
+                loadDefaultBooks();
+            }
+        } else {
+            // First time: load from data.json
+            loadDefaultBooks();
+        }
+
+        // Load loans from localStorage
+        const savedLoans = localStorage.getItem("loans");
+        if (savedLoans) {
+            try {
+                const parsedLoans = JSON.parse(savedLoans);
+                setLoans(parsedLoans);
+            } catch (error) {
+                console.error("Error loading loans from localStorage:", error);
+            }
+        }
+    }, [loadDefaultBooks]);
+
+    // Save books to localStorage whenever books change
+    useEffect(() => {
+        if (books.length > 0) {
+            localStorage.setItem("books", JSON.stringify(books));
+        }
+    }, [books]);
+
+    // Save loans to localStorage whenever loans change
+    useEffect(() => {
+        localStorage.setItem("loans", JSON.stringify(loans));
+    }, [loans]);
 
     const handleAddBook = () => {
         setIsModalOpen(true);
@@ -48,13 +95,38 @@ export default function App() {
         );
     };
 
+    // Derived: quick lookup of on-loan status by isbn13
+    const onLoanByIsbn = useMemo(() => {
+        const map = new Map();
+        loans.forEach((l) => map.set(l.isbn13, true));
+        return map;
+    }, [loans]);
+
     const handleDeleteSelected = () => {
+        const selectedBook = books.find((book) => book.selected);
+        if (!selectedBook) return;
+
+        // Check if the selected book is on loan
+        if (onLoanByIsbn.get(selectedBook.isbn13)) {
+            alert("Cannot delete a book that is currently on loan.");
+            return;
+        }
+
         setBooks((prev) => prev.filter((book) => !book.selected));
     };
 
     const handleUpdateSelected = () => {
-        // No-op for now as requested
-        console.log("Update functionality not implemented yet");
+        const selectedBook = books.find((book) => book.selected);
+        if (!selectedBook) return;
+
+        // Check if the selected book is on loan
+        if (onLoanByIsbn.get(selectedBook.isbn13)) {
+            alert("Cannot edit a book that is currently on loan.");
+            return;
+        }
+
+        setEditingBook(selectedBook);
+        setIsEditModalOpen(true);
     };
 
     const handleAddNewBook = (newBookData) => {
@@ -78,12 +150,44 @@ export default function App() {
         setBooks((prev) => [...prev, newBook]);
     };
 
-    // Derived: quick lookup of on-loan status by isbn13
-    const onLoanByIsbn = useMemo(() => {
-        const map = new Map();
-        loans.forEach((l) => map.set(l.isbn13, true));
-        return map;
-    }, [loans]);
+    const handleUpdateBook = (updatedBookData) => {
+        setBooks((prev) =>
+            prev.map((book) =>
+                book.isbn13 === editingBook.isbn13
+                    ? {
+                          ...book,
+                          title: updatedBookData.title,
+                          author: updatedBookData.author,
+                          subtitle: updatedBookData.author,
+                          publisher:
+                              updatedBookData.publisher || "Unknown Publisher",
+                          publicationYear:
+                              updatedBookData.publicationYear || "Unknown",
+                          language: updatedBookData.language || "Unknown",
+                          pages: updatedBookData.pages || "Unknown",
+                          image:
+                              updatedBookData.imageUrl ||
+                              book.image ||
+                              "https://via.placeholder.com/200x300?text=No+Image",
+                          selected: false, // Deselect after editing
+                      }
+                    : book
+            )
+        );
+        setIsEditModalOpen(false);
+        setEditingBook(null);
+    };
+
+    const handleCloseEditModal = () => {
+        setIsEditModalOpen(false);
+        setEditingBook(null);
+    };
+
+    // Check if selected book is on loan
+    const selectedBook = books.find((book) => book.selected);
+    const isSelectedBookOnLoan = selectedBook
+        ? onLoanByIsbn.get(selectedBook.isbn13)
+        : false;
 
     const handleCreateLoan = ({ borrower, isbn13, weeks }) => {
         const weeksInt = Math.max(1, Math.min(4, parseInt(weeks, 10) || 1));
@@ -156,13 +260,27 @@ export default function App() {
                                 <button
                                     className='btn-update'
                                     onClick={handleUpdateSelected}
-                                    title='Edit selected book'>
+                                    disabled={!selectedBook}
+                                    title={
+                                        !selectedBook
+                                            ? "Select a book to edit"
+                                            : isSelectedBookOnLoan
+                                            ? "Cannot edit a book that is on loan"
+                                            : "Edit selected book"
+                                    }>
                                     Edit
                                 </button>
                                 <button
                                     className='btn-delete'
                                     onClick={handleDeleteSelected}
-                                    title='Delete selected book'>
+                                    disabled={!selectedBook}
+                                    title={
+                                        !selectedBook
+                                            ? "Select a book to delete"
+                                            : isSelectedBookOnLoan
+                                            ? "Cannot delete a book that is on loan"
+                                            : "Delete selected book"
+                                    }>
                                     Delete
                                 </button>
                             </div>
@@ -207,6 +325,12 @@ export default function App() {
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 onAddBook={handleAddNewBook}
+            />
+            <EditBookModal
+                isOpen={isEditModalOpen}
+                onClose={handleCloseEditModal}
+                onUpdateBook={handleUpdateBook}
+                book={editingBook}
             />
         </div>
     );
